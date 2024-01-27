@@ -8,15 +8,15 @@ exports.showItems = async (req, res, next) => {
     try {
         const field = req.query.field
         const query = req.query.q
-        
+
         console.log(req.query)
         if (field === "All") {
-            const itemList = await items.find({ itemName:  {$regex:query,$options:'i'} })
+            const itemList = await items.find({ itemName: { $regex: query, $options: 'i' } })
             console.log(itemList)
             res.status(200).send(itemList)
         }
         else if (field === "price") {
-            const itemList = await items.find({ price:  {$regex:parseInt(query),$options:'i'}})
+            const itemList = await items.find({ price: { $regex: parseInt(query), $options: 'i' } })
             console.log(itemList)
             res.status(200).send(itemList)
         }
@@ -24,10 +24,10 @@ exports.showItems = async (req, res, next) => {
             const itemList = await items.find({
                 $and: [
                     { item_type: field },
-                    { itemName: {$regex:query,$options:'i'} }
+                    { itemName: { $regex: query, $options: 'i' } }
                 ]
             })
-          //  console.log(itemList)
+            //  console.log(itemList)
             res.status(200).send(itemList)
         }
     }
@@ -46,11 +46,11 @@ exports.showallItems = async (req, res, next) => {
         res.status(200).send(itemList)
     }
     catch (error) {
-    console.log(error);
-    res.status(500).json({
-        message: error.message
-    })
-}
+        console.log(error);
+        res.status(500).json({
+            message: error.message
+        })
+    }
 }
 
 exports.placeOrder = async (req, res) => {
@@ -69,35 +69,40 @@ exports.placeOrder = async (req, res) => {
             img,
         } = req.body
         console.log(req.body)
-        //   const payment_verification = await payments.findOne({ payment_id })
-        // if (payment_verification && payment_verification?.verification) 
-        // {
-        bcrypt.hash(user_id, 12, async function (err, hash) {
-            if (err) {
-                console.error('Error generating hash code:', err);
-            }
-            else {
-                const details = {
-                    name,
-                    orderHash: hash,
-                    item_id,
-                    user_id,
-                    date,
-                    startTime,
-                    endTime,
-                    fullAddress,
-                    item_type,
-                    price,
-                    item_name,
-                    img,
-                    status: false,
+
+        if  (!name || !item_id || !user_id || !date || !startTime || !endTime || !fullAddress || !item_type || !price || !item_name || !img){
+            return res.status(400).send({msg:"All fields are Required"})
+        }
+
+            //   const payment_verification = await payments.findOne({ payment_id })
+            // if (payment_verification && payment_verification?.verification) 
+            // {
+            bcrypt.hash(user_id, 12, async function (err, hash) {
+                if (err) {
+                    console.error('Error generating hash code:', err);
                 }
-                const new_order = new orderList(details);
-                const data = await new_order.save()
-                console.log(data);
-                res.status(200).send(data);
-            }
-        })
+                else {
+                    const details = {
+                        name,
+                        orderHash: hash,
+                        item_id,
+                        user_id,
+                        date,
+                        startTime,
+                        endTime,
+                        fullAddress,
+                        item_type,
+                        price,
+                        item_name,
+                        img,
+                        status: false,
+                    }
+                    const new_order = new orderList(details);
+                    const data = await new_order.save()
+                    console.log(data);
+                    res.status(200).send(data);
+                }
+            })
         //  }
 
         // else {
