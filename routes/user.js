@@ -9,6 +9,15 @@ const userController = require('../controllers/user');
 router.post('/signup',
   userController.signup
   )
+
+router.post('/googlelogin',
+  [
+    body('idToken').exists().withMessage('idToken is required'),
+  ],
+  userController.googlelogin
+);
+
+
 router.post('/login',
   [
     body('email').exists().withMessage('email is required'),
@@ -17,6 +26,8 @@ router.post('/login',
  
   userController.login
 );
+
+
 
 
 router.get('/email/verification',

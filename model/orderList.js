@@ -22,7 +22,7 @@ const Schema = new mongoose.Schema({
         required: true
     },
     fullAddress: {
-        type: String,
+        type: Object,
         required: true
     },
     item_type: {

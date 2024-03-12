@@ -1,30 +1,37 @@
 const mongoose = require("mongoose");
 
 const Schema = new mongoose.Schema({
-    username : {
+    username: {
         type: String,
         required: true
     },
     email: {
-        type:String,
+        type: String,
         required: true
     },
-    password:{
-        type:String,
+    password: {
+        type: String,
         required: true
     },
-    order:[
+    order: [
         {
-            itemName:String,
-            order_id:String,
-            price:Number,
-            img:String,
+            itemName: String,
+            order_id: String,
+            price: Number,
+            img: String,
+        },
+    ],
+    webyapar: [
+        {
+            latitude: String,
+            longitude: String,
+            imageUrl: String,
         },
     ]
 },
-{
-    timestamps: true
-});
+    {
+        timestamps: true
+    });
 
 const Users = mongoose.model("foodUser", Schema);
 module.exports = Users

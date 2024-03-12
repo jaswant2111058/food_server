@@ -1,7 +1,7 @@
 const items = require("../model/items");
 const users = require("../model/user");
 const orderList = require("../model/orderList");
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 
 exports.showItems = async (req, res, next) => {
@@ -40,7 +40,7 @@ exports.showItems = async (req, res, next) => {
 }
 
 
-exports.showallItems = async (req, res, next) => {
+exports.showallItems = async (req, res) => {
     try {
         const itemList = await items.find({}).limit(20);
         res.status(200).send(itemList)

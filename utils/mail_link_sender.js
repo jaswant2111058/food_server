@@ -13,7 +13,7 @@ function sendmail(username,email,token) {
     from: 'jkstar0123@gmail.com',
     to: `${email}`,
     subject: 'registor email verification',
-    text: `<html><a href="http://localhost:5000/email/verification?token=${token}&username=${username}&email=${email}">Verify</a> </html>`
+    html: `<html><a href="${process.env.ORIGIN}/email/verification?token=${token}&username=${username}&email=${email}">Verify</a> </html>`
   }
   console.log(mailOptions)
   transporter.sendMail(mailOptions, function (error, info) {
