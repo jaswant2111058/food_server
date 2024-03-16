@@ -25,11 +25,20 @@ router.get('/getorderlist',
 
 
 
+router.get('/getplacedorder/:_id',
+  userController.authMiddleware,
+  indexController.getPlacedOrders
+)
+
+
+
 router.post('/placeorder',
 
   userController.authMiddleware,
   indexController.placeOrder
 );
+
+
 
 
 

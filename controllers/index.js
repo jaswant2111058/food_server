@@ -2,6 +2,7 @@ const items = require("../model/items");
 const users = require("../model/user");
 const orderList = require("../model/orderList");
 const bcrypt = require('bcrypt');
+const { Types } = require('mongoose');
 
 
 exports.showItems = async (req, res, next) => {
@@ -100,7 +101,7 @@ exports.placeOrder = async (req, res) => {
         const savedOrder = await newOrder.save();
 
         // Update user's order list
-       const userData = await users.findOneAndUpdate(
+        const userData = await users.findOneAndUpdate(
             { email: req.email },
             { $push: { order: { itemName: item_name, order_id: savedOrder._id, price, img } } },
             { new: true }
@@ -114,20 +115,7 @@ exports.placeOrder = async (req, res) => {
     }
 };
 
-exports.getOrder = async (req, res) => {
 
-    try {
-        const { order_id } = req.body.order_id;
-        const order = await orderList.findOne({ _id: order_id })
-        res.status(200).send(order)
-    }
-    catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: error.message
-        })
-    }
-}
 
 exports.getOrderList = async (req, res) => {
 
@@ -144,3 +132,35 @@ exports.getOrderList = async (req, res) => {
     }
 
 }
+
+exports.getPlacedOrders = async (req, res) => {
+    try {
+        const _id = req.params._id;
+
+        // Validate if the provided _id is a valid ObjectId
+        if (!Types.ObjectId.isValid(_id)) {
+            return res.status(400).send({
+                message: "Invalid Order Id"
+            });
+        }
+
+        // Find the order by _id
+        const findOrder = await orderList.findById(_id);
+
+        // Check if the order exists
+        if (!findOrder) {
+            return res.status(404).send({
+                message: "Order not found"
+            });
+        }
+
+        // Return the found order
+        res.send(findOrder);
+    } catch (err) {
+        console.error(err);
+        // Handle other potential errors properly, like sending a generic error response
+        res.status(500).send({
+            message: "Internal Server Error"
+        });
+    }
+};
