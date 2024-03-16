@@ -67,54 +67,52 @@ exports.placeOrder = async (req, res) => {
             price,
             item_name,
             img,
-        } = req.body
-        console.log(req.body)
+        } = req.body;
 
-        if  (!name || !item_id || !user_id || !date || !startTime || !endTime || !fullAddress || !item_type || !price || !item_name || !img){
-            return res.status(400).send({msg:"All fields are Required"})
+        // Check if all required fields are present
+        const requiredFields = [name, item_id, user_id, date, startTime, endTime, fullAddress, item_type, price, item_name, img];
+        if (requiredFields.some(field => !field)) {
+            return res.status(400).json({ msg: "All fields are required" });
         }
 
-            //   const payment_verification = await payments.findOne({ payment_id })
-            // if (payment_verification && payment_verification?.verification) 
-            // {
-            bcrypt.hash(user_id, 12, async function (err, hash) {
-                if (err) {
-                    console.error('Error generating hash code:', err);
-                }
-                else {
-                    const details = {
-                        name,
-                        orderHash: hash,
-                        item_id,
-                        user_id,
-                        date,
-                        startTime,
-                        endTime,
-                        fullAddress,
-                        item_type,
-                        price,
-                        item_name,
-                        img,
-                        status: false,
-                    }
-                    const new_order = new orderList(details);
-                    const data = await new_order.save()
-                    console.log(data);
-                    res.status(200).send(data);
-                }
-            })
-        //  }
+        // Generate hash for user_id
+        const hashedUserId = await bcrypt.hash(user_id, 12);
 
-        // else {
-        //     res.status(400).json("unauterized access");
-        // }
+        // Create order details
+        const orderDetails = {
+            name,
+            orderHash: hashedUserId,
+            item_id,
+            user_id,
+            date,
+            startTime,
+            endTime,
+            fullAddress,
+            item_type,
+            price,
+            item_name,
+            img,
+            status: false,
+        };
+
+        // Save order to database
+        const newOrder = new orderList(orderDetails);
+        const savedOrder = await newOrder.save();
+
+        // Update user's order list
+       const userData = await users.findOneAndUpdate(
+            { email: req.email },
+            { $push: { order: { itemName: item_name, order_id: savedOrder._id, price, img } } },
+            { new: true }
+        );
+
+        res.status(200).json(savedOrder);
+        console.log(userData)
     } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: error.message
-        })
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
     }
-}
+};
 
 exports.getOrder = async (req, res) => {
 
@@ -129,4 +127,20 @@ exports.getOrder = async (req, res) => {
             message: error.message
         })
     }
+}
+
+exports.getOrderList = async (req, res) => {
+
+    try {
+        const order = await users.findOne({ email: req.email })
+        console.log(order)
+        res.status(200).send(order.order)
+    }
+    catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: error.message
+        })
+    }
+
 }
